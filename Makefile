@@ -12,8 +12,8 @@ env-down:
 env-cleanup:
 	@read -p "Очистить все volume файлы окружения? Опасность утери данных. [y/N]: " ans; \
 	if [ "$$ans" = "y" ]; then \
-		docker compose down todoapp-postgres && \
-		sudo rm -rf out/pgdata && \
+		docker compose down todoapp-postgres port-forwarder && \
+		sudo rm -rf $(PROJECT_ROOT)/out/pgdata && \
 		echo "Файлы окружения очищены"; \
 	else \
 		echo "Очистка окружения отменена"; \
@@ -51,3 +51,39 @@ migrate-action:
 	-path /migrations \
 	-database postgres://$(POSTGRES_USER):$(POSTGRES_PASSWORD)@todoapp-postgres:5432/$(POSTGRES_DB)?sslmode=disable \
 	"$(action)"
+
+todoapp-run:
+	@export LOGGER_FOLDER=$(PROJECT_ROOT)/out/logs && \
+	export POSTGRES_HOST=localhost && \
+	go mod tidy && \
+	go run $(PROJECT_ROOT)/cmd/todoapp/main.go
+
+setup-pgdata:
+	@mkdir -p $(PROJECT_ROOT)/out/pgdata
+	@sudo chown -R $(shell id -u):$(shell id -g) $(PROJECT_ROOT)/out/pgdata
+	@chmod -R 755 $(PROJECT_ROOT)/out/pgdata
+	@echo "✅ $(PROJECT_ROOT)/out/pgdata готова (владелец — $(shell id -un))"
+
+fix-perms:
+	@if [ -d "migrations" ]; then \
+		sudo chown -R $(shell id -u):$(shell id -g) migrations; \
+		echo "✅ Права на migrations исправлены"; \
+	else \
+		echo "⚠️ Папка migrations не существует"; \
+	fi
+
+wait-for-postgres:
+	@echo "Ожидание запуска PostgreSQL..."
+	@until docker compose exec todoapp-postgres pg_isready -U $(POSTGRES_USER) -d $(POSTGRES_DB) > /dev/null 2>&1; do \
+		sleep 1; \
+	done
+	@echo "✅ PostgreSQL готов"
+
+start-all:
+	make setup-pgdata
+	make fix-perms
+	make env-up
+	make wait-for-postgres
+	make migrate-up
+	make env-port-forward
+	make todoapp-run

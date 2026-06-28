@@ -1,6 +1,11 @@
 services:
   todoapp-postgres:
-    image: postgres:18.1-bookworm
+    build:
+      context: .
+      dockerfile: Dockerfile.postgres
+      args:
+        UID: ${UID:-1000}     
+        GID: ${GID:-1000}
     container_name: todoapp-env-postgres
     environment:
       - POSTGRES_USER=${POSTGRES_USER}
