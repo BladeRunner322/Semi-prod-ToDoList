@@ -8,7 +8,7 @@ import (
 	"syscall"
 
 	core_logger "github.com/BladeRunner322/Semi-prod-ToDoList/internal/core/logger"
-	core_postgres_pool "github.com/BladeRunner322/Semi-prod-ToDoList/internal/core/repository/postgres/pool"
+	core_pgx_pool "github.com/BladeRunner322/Semi-prod-ToDoList/internal/core/repository/postgres/pool/pgx"
 	core_http_middlware "github.com/BladeRunner322/Semi-prod-ToDoList/internal/core/transport/http/middleware"
 	core_http_server "github.com/BladeRunner322/Semi-prod-ToDoList/internal/core/transport/http/server"
 	users_postgres_repository "github.com/BladeRunner322/Semi-prod-ToDoList/internal/features/users/repository/postgres"
@@ -33,9 +33,9 @@ func main() {
 	defer logger.Close()
 
 	logger.Debug("initialising postgres connection pool")
-	pool, err := core_postgres_pool.NewConnectionPool(
+	pool, err := core_pgx_pool.NewPool(
 		ctx,
-		core_postgres_pool.NewConfigMust(),
+		core_pgx_pool.NewConfigMust(),
 	)
 
 	if err != nil {
@@ -54,13 +54,23 @@ func main() {
 		logger,
 		core_http_middlware.RequestID(),
 		core_http_middlware.Logger(logger),
-		core_http_middlware.Panic(),
 		core_http_middlware.Trace(),
+		core_http_middlware.Panic(),
 	)
 
-	apiVersionRouter := core_http_server.NewAPIVersionRouter(core_http_server.ApiVersion1)
-	apiVersionRouter.RegisterRoutes(usersTransportHTTP.Routes()...)
-	httpServer.RegisterAPIRouters(apiVersionRouter)
+	apiVersionRouterV1 := core_http_server.NewAPIVersionRouter(core_http_server.ApiVersion1)
+	apiVersionRouterV1.RegisterRoutes(usersTransportHTTP.Routes()...)
+
+	// apiVersionRouterV2 := core_http_server.NewAPIVersionRouter(
+	// 	core_http_server.ApiVersion2,
+	// 	core_http_middlware.Dummy("api v2 middleware"),
+	// )
+	// apiVersionRouterV2.RegisterRoutes(usersTransportHTTP.Routes()...)
+
+	httpServer.RegisterAPIRouters(
+		apiVersionRouterV1,
+		// apiVersionRouterV2,
+	)
 
 	if err := httpServer.Run(ctx); err != nil {
 		logger.Error("HTTP server run error", zap.Error(err))

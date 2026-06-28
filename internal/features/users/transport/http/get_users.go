@@ -5,8 +5,8 @@ import (
 	"net/http"
 
 	core_logger "github.com/BladeRunner322/Semi-prod-ToDoList/internal/core/logger"
+	core_http_request "github.com/BladeRunner322/Semi-prod-ToDoList/internal/core/transport/http/request"
 	core_http_response "github.com/BladeRunner322/Semi-prod-ToDoList/internal/core/transport/http/response"
-	core_http_utils "github.com/BladeRunner322/Semi-prod-ToDoList/internal/core/transport/http/utils"
 )
 
 type GetUsersResponse []UserDTOResponse
@@ -42,12 +42,17 @@ func (h *UsersHTTPHandler) GetUsers(rw http.ResponseWriter, r *http.Request) {
 }
 
 func getLimitOffsetQueryParams(r *http.Request) (*int, *int, error) {
-	limit, err := core_http_utils.GetIntQueryParams(r, "limit")
+	const (
+		limitQueryParamKey  = "limit"
+		offsetQueryParamKey = "limit"
+	)
+
+	limit, err := core_http_request.GetIntQueryParams(r, limitQueryParamKey)
 	if err != nil {
 		return nil, nil, fmt.Errorf("get 'limit' query param: %w", err)
 	}
 
-	offset, err := core_http_utils.GetIntQueryParams(r, "offset")
+	offset, err := core_http_request.GetIntQueryParams(r, offsetQueryParamKey)
 	if err != nil {
 		return nil, nil, fmt.Errorf("get 'offset' query param: %w", err)
 	}
