@@ -12,7 +12,7 @@ env-down:
 env-cleanup:
 	@read -p "Очистить все volume файлы окружения? Опасность утери данных. [y/N]: " ans; \
 	if [ "$$ans" = "y" ]; then \
-		docker compose down todoapp-postgres && \
+		docker compose down todoapp-postgres port-forwarder && \
 		sudo rm -rf out/pgdata && \
 		echo "Файлы окружения очищены"; \
 	else \
@@ -51,3 +51,23 @@ migrate-action:
 	-path /migrations \
 	-database postgres://$(POSTGRES_USER):$(POSTGRES_PASSWORD)@todoapp-postgres:5432/$(POSTGRES_DB)?sslmode=disable \
 	"$(action)"
+
+todoapp-run:
+	@export LOGGER_FOLDER=$(PROJECT_ROOT)/out/logs && \
+	export POSTGRES_HOST=localhost && \
+	go mod tidy && \
+	go run cmd/todoapp/main.go
+
+setup-pgdata:
+	@mkdir -p out/pgdata
+	@sudo chown -R $(shell id -u):$(shell id -g) out/pgdata
+	@chmod -R 755 out/pgdata
+	@echo "✅ out/pgdata готова (владелец — $(shell id -un))"
+
+fix-perms:
+	@if [ -d "migrations" ]; then \
+		sudo chown -R $(shell id -u):$(shell id -g) migrations; \
+		echo "✅ Права на migrations исправлены"; \
+	else \
+		echo "⚠️ Папка migrations не существует"; \
+	fi
