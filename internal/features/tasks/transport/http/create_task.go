@@ -1,4 +1,4 @@
-package users_transport_http
+package tasks_transport_http
 
 import (
 	"net/http"
@@ -9,47 +9,47 @@ import (
 	core_http_response "github.com/BladeRunner322/Semi-prod-ToDoList/internal/core/transport/http/response"
 )
 
-type CreateUserRequest struct {
-	FullName    string  `json:"full_name" validate:"required,min=3,max=100"`
-	PhoneNumber *string `json:"phone_number" validate:"omitempty,min=10,max=15,startswith=+"`
+type CreateTaskRequest struct {
+	Title        string  `json:"title" validate:"required,min=1,max=100"`
+	Description  *string `json:"description" validate:"omitempty,min=1,max=1000"`
+	AuthorUserID int     `json:"author_user_id" validate:"required"`
 }
 
-type CreateUserResponse UserDTOResponse
+type CreateTaskResponse TaskDTOResponse
 
-func (h *UsersHTTPHandler) CreateUser(rw http.ResponseWriter, r *http.Request) {
+func (h *TasksHTTPHandler) CreateTask(rw http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	log := core_logger.FromContext(ctx)
 	responseHandler := core_http_response.NewHTTPResponseHandler(log, rw)
 
-	log.Debug("invoke CreateUser handler")
+	var request CreateTaskRequest
 
-	var request CreateUserRequest
 	if err := core_http_request.DecodeAndValidateRequest(r, &request); err != nil {
 		responseHandler.ErrorResponse(
 			err,
-			"failed to decode and validate HTTP request",
+			"failed to decode and validate HTTP requesr",
 		)
 
 		return
 	}
 
-	userDomain := domainFromDTO(request)
+	taskDomain := domain.NewTaskUninitialized(
+		request.Title,
+		request.Description,
+		request.AuthorUserID,
+	)
 
-	userDomain, err := h.usersService.CreateUser(ctx, userDomain)
+	taskDomain, err := h.tasksService.CreateTask(ctx, taskDomain)
 	if err != nil {
 		responseHandler.ErrorResponse(
 			err,
-			"failed to create user",
+			"failed to create task",
 		)
 
 		return
 	}
 
-	response := CreateUserResponse(userDTOFromDomain(userDomain))
+	response := CreateTaskResponse(taskDTOFromDomain(taskDomain))
 
 	responseHandler.JSONResponse(response, http.StatusCreated)
-}
-
-func domainFromDTO(dto CreateUserRequest) domain.User {
-	return domain.NewUserUninitialized(dto.FullName, dto.PhoneNumber)
 }
