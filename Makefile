@@ -79,10 +79,19 @@ wait-for-postgres:
 	done
 	@echo "✅ PostgreSQL готов"
 
+logs-cleanup:
+		@read -p "Очистить все log файлы? Опасность утери логов. [y/N]: " ans; \
+	if [ "$$ans" = "y" ]; then \
+		rm -rf $(PROJECT_ROOT)/out/logs && \
+		echo "Файлы логов очищены"; \
+	else \
+		echo "Очистка логов отменена"; \
+	fi
+
 start-all:
 	make setup-pgdata
 	make fix-perms
-	make env-up
+	make env-up 
 	make wait-for-postgres
 	make migrate-up
 	make env-port-forward
