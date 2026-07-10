@@ -61,6 +61,9 @@ todoapp-run:
 todoapp-deploy:
 	@docker compose up -d --build todoapp
 
+todoapp-down:
+	@docker compose down todoapp
+
 ps:
 	@docker compose ps
 logs-cleanup:
