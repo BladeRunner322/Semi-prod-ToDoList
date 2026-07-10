@@ -58,27 +58,11 @@ todoapp-run:
 	go mod tidy && \
 	go run $(PROJECT_ROOT)/cmd/todoapp/main.go
 
-setup-pgdata:
-	@mkdir -p $(PROJECT_ROOT)/out/pgdata
-	@sudo chown -R $(shell id -u):$(shell id -g) $(PROJECT_ROOT)/out/pgdata
-	@chmod -R 755 $(PROJECT_ROOT)/out/pgdata
-	@echo "✅ $(PROJECT_ROOT)/out/pgdata готова (владелец — $(shell id -un))"
+todoapp-deploy:
+	@docker compose up -d --build todoapp
 
-fix-perms:
-	@if [ -d "migrations" ]; then \
-		sudo chown -R $(shell id -u):$(shell id -g) migrations; \
-		echo "✅ Права на migrations исправлены"; \
-	else \
-		echo "⚠️ Папка migrations не существует"; \
-	fi
-
-wait-for-postgres:
-	@echo "Ожидание запуска PostgreSQL..."
-	@until docker compose exec todoapp-postgres pg_isready -U $(POSTGRES_USER) -d $(POSTGRES_DB) > /dev/null 2>&1; do \
-		sleep 1; \
-	done
-	@echo "✅ PostgreSQL готов"
-
+ps:
+	@docker compose ps
 logs-cleanup:
 		@read -p "Очистить все log файлы? Опасность утери логов. [y/N]: " ans; \
 	if [ "$$ans" = "y" ]; then \
@@ -87,12 +71,3 @@ logs-cleanup:
 	else \
 		echo "Очистка логов отменена"; \
 	fi
-
-start-all:
-	make setup-pgdata
-	make fix-perms
-	make env-up 
-	make wait-for-postgres
-	make migrate-up
-	make env-port-forward
-	make todoapp-run
