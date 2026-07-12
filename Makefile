@@ -4,7 +4,7 @@ export
 export PROJECT_ROOT=$(shell pwd)
 
 env-up:
-	@docker compose up -d todoapp-postgres
+	@docker compose up -d todoapp-postgres 
 
 env-down:
 	@docker compose down todoapp-postgres
@@ -52,6 +52,15 @@ migrate-action:
 	-database postgres://$(POSTGRES_USER):$(POSTGRES_PASSWORD)@todoapp-postgres:5432/$(POSTGRES_DB)?sslmode=disable \
 	"$(action)"
 
+logs-cleanup:
+		@read -p "Очистить все log файлы? Опасность утери логов. [y/N]: " ans; \
+	if [ "$$ans" = "y" ]; then \
+		rm -rf $(PROJECT_ROOT)/out/logs && \
+		echo "Файлы логов очищены"; \
+	else \
+		echo "Очистка логов отменена"; \
+	fi
+
 todoapp-run:
 	@export LOGGER_FOLDER=$(PROJECT_ROOT)/out/logs && \
 	export POSTGRES_HOST=localhost && \
@@ -64,13 +73,15 @@ todoapp-deploy:
 todoapp-undeploy:
 	@docker compose down todoapp
 
+swagger-gen:
+	@docker compose run --rm swagger \
+		init \
+		-g cmd/todoapp/main.go \
+		-o docs \
+		--parseInternal \
+		--parseDependency
+
 ps:
 	@docker compose ps
-logs-cleanup:
-		@read -p "Очистить все log файлы? Опасность утери логов. [y/N]: " ans; \
-	if [ "$$ans" = "y" ]; then \
-		rm -rf $(PROJECT_ROOT)/out/logs && \
-		echo "Файлы логов очищены"; \
-	else \
-		echo "Очистка логов отменена"; \
-	fi
+
+# sudo chmod -R 755 /home/aram/Desktop/GoProjects/Semi-Prod-ToDoList/out/pgdata
