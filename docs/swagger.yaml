@@ -1,0 +1,588 @@
+basePath: /api/v1
+definitions:
+  github_com_BladeRunner322_Semi-prod-ToDoList_internal_core_transport_http_response.ErrorResponse:
+    properties:
+      error:
+        example: full error text
+        type: string
+      message:
+        example: short human-readable message
+        type: string
+    type: object
+  internal_features_statistics_transport_http.GetStatisticsResponse:
+    properties:
+      tasks_average_complition_time:
+        example: 1m30s
+        type: string
+      tasks_completed:
+        example: 10
+        type: integer
+      tasks_created:
+        example: 50
+        type: integer
+      tasks_created_rate:
+        example: 20
+        type: number
+    type: object
+  internal_features_tasks_transport_http.CreateTaskRequest:
+    properties:
+      author_user_id:
+        example: 5
+        type: integer
+      description:
+        example: Апнуть 1500 ммр
+        maxLength: 1000
+        minLength: 1
+        type: string
+      title:
+        example: Дота 2
+        maxLength: 100
+        minLength: 1
+        type: string
+    required:
+    - author_user_id
+    - title
+    type: object
+  internal_features_tasks_transport_http.CreateTaskResponse:
+    properties:
+      author_user_id:
+        example: 5
+        type: integer
+      completed:
+        example: false
+        type: boolean
+      completed_at:
+        example: "null"
+        type: string
+      created_at:
+        example: "2026-07-13T01:30:00Z"
+        type: string
+      description:
+        example: Апнуть 1500 ммр
+        type: string
+      id:
+        example: 1
+        type: integer
+      title:
+        example: Дота 2
+        type: string
+      version:
+        example: 2
+        type: integer
+    type: object
+  internal_features_tasks_transport_http.GetTaskResponse:
+    properties:
+      author_user_id:
+        example: 5
+        type: integer
+      completed:
+        example: false
+        type: boolean
+      completed_at:
+        example: "null"
+        type: string
+      created_at:
+        example: "2026-07-13T01:30:00Z"
+        type: string
+      description:
+        example: Апнуть 1500 ммр
+        type: string
+      id:
+        example: 1
+        type: integer
+      title:
+        example: Дота 2
+        type: string
+      version:
+        example: 2
+        type: integer
+    type: object
+  internal_features_tasks_transport_http.PatchTaskRequest:
+    properties:
+      completed:
+        type: boolean
+      description:
+        example: "null"
+        type: string
+      title:
+        example: Микросон
+        type: string
+    type: object
+  internal_features_tasks_transport_http.TaskDTOResponse:
+    properties:
+      author_user_id:
+        example: 5
+        type: integer
+      completed:
+        example: false
+        type: boolean
+      completed_at:
+        example: "null"
+        type: string
+      created_at:
+        example: "2026-07-13T01:30:00Z"
+        type: string
+      description:
+        example: Апнуть 1500 ммр
+        type: string
+      id:
+        example: 1
+        type: integer
+      title:
+        example: Дота 2
+        type: string
+      version:
+        example: 2
+        type: integer
+    type: object
+  internal_features_users_transport_http.CreateUserRequest:
+    properties:
+      full_name:
+        example: Ivan Maslakov
+        maxLength: 100
+        minLength: 3
+        type: string
+      phone_number:
+        example: "+79998887766"
+        maxLength: 15
+        minLength: 10
+        type: string
+    required:
+    - full_name
+    type: object
+  internal_features_users_transport_http.CreateUserResponse:
+    properties:
+      full_name:
+        example: Ivan Maslakov
+        type: string
+      id:
+        example: 1
+        type: integer
+      phone_number:
+        example: "+79998887766"
+        type: string
+      version:
+        example: 5
+        type: integer
+    type: object
+  internal_features_users_transport_http.GetUserResponse:
+    properties:
+      full_name:
+        example: Ivan Maslakov
+        type: string
+      id:
+        example: 1
+        type: integer
+      phone_number:
+        example: "+79998887766"
+        type: string
+      version:
+        example: 5
+        type: integer
+    type: object
+  internal_features_users_transport_http.PatchUserRequest:
+    properties:
+      full_name:
+        example: Karina Shpak
+        type: string
+      phone_number:
+        example: "+79666666666"
+        type: string
+    type: object
+  internal_features_users_transport_http.UserDTOResponse:
+    properties:
+      full_name:
+        example: Ivan Maslakov
+        type: string
+      id:
+        example: 1
+        type: integer
+      phone_number:
+        example: "+79998887766"
+        type: string
+      version:
+        example: 5
+        type: integer
+    type: object
+host: 127.0.0.1:5050
+info:
+  contact: {}
+  description: Todo Application REST-API schema
+  title: Golang Todo API
+  version: "1.0"
+paths:
+  /statistics:
+    get:
+      description: Получение статистики по задачам с опциональной фильтрацией по user_id
+        и/или временному промежутку
+      parameters:
+      - description: Фильтрация статистики по конкретному пользователю
+        in: query
+        name: user_id
+        type: integer
+      - description: 'Начало промежутка рассмотрения статистики (включительно), формат:
+          YYYY-MM-DD'
+        in: query
+        name: from
+        type: string
+      - description: 'Конец промежутка рассмотрения статистики (не включительно),
+          формат: YYYY-MM-DD'
+        in: query
+        name: to
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Успешное получение статистики
+          schema:
+            $ref: '#/definitions/internal_features_statistics_transport_http.GetStatisticsResponse'
+        "400":
+          description: Bad request
+          schema:
+            $ref: '#/definitions/github_com_BladeRunner322_Semi-prod-ToDoList_internal_core_transport_http_response.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/github_com_BladeRunner322_Semi-prod-ToDoList_internal_core_transport_http_response.ErrorResponse'
+      summary: Получение статистики
+      tags:
+      - statistics
+  /tasks:
+    get:
+      description: Просмотр списка задач с опциональной пагинацией и/или фильтрацией
+        по ID автора задачи
+      parameters:
+      - description: Фильтрация задач по ID автора
+        in: query
+        name: user_id
+        type: integer
+      - description: Размер страницы с задачами
+        in: query
+        name: limit
+        type: integer
+      - description: Смещение страницы с задачами
+        in: query
+        name: offset
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Успешное получение списка задач
+          schema:
+            items:
+              $ref: '#/definitions/internal_features_tasks_transport_http.TaskDTOResponse'
+            type: array
+        "400":
+          description: Bad request
+          schema:
+            $ref: '#/definitions/github_com_BladeRunner322_Semi-prod-ToDoList_internal_core_transport_http_response.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/github_com_BladeRunner322_Semi-prod-ToDoList_internal_core_transport_http_response.ErrorResponse'
+      summary: Список задач
+      tags:
+      - tasks
+    post:
+      consumes:
+      - application/json
+      description: Создание новой задачи в системе
+      parameters:
+      - description: CreateTask тело запроса
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/internal_features_tasks_transport_http.CreateTaskRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Успешное создание задачи
+          schema:
+            $ref: '#/definitions/internal_features_tasks_transport_http.CreateTaskResponse'
+        "400":
+          description: Bad request
+          schema:
+            $ref: '#/definitions/github_com_BladeRunner322_Semi-prod-ToDoList_internal_core_transport_http_response.ErrorResponse'
+        "404":
+          description: Author not found
+          schema:
+            $ref: '#/definitions/github_com_BladeRunner322_Semi-prod-ToDoList_internal_core_transport_http_response.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/github_com_BladeRunner322_Semi-prod-ToDoList_internal_core_transport_http_response.ErrorResponse'
+      summary: Создание задачи
+      tags:
+      - tasks
+  /tasks/{id}:
+    delete:
+      description: Удаление существующей задачи в системе по её ID
+      parameters:
+      - description: ID удаляемой задачи
+        in: path
+        name: id
+        required: true
+        type: integer
+      responses:
+        "204":
+          description: Успешное удаление задачи
+        "400":
+          description: Bad request
+          schema:
+            $ref: '#/definitions/github_com_BladeRunner322_Semi-prod-ToDoList_internal_core_transport_http_response.ErrorResponse'
+        "404":
+          description: Task not found
+          schema:
+            $ref: '#/definitions/github_com_BladeRunner322_Semi-prod-ToDoList_internal_core_transport_http_response.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/github_com_BladeRunner322_Semi-prod-ToDoList_internal_core_transport_http_response.ErrorResponse'
+      summary: Удаление задачи
+      tags:
+      - tasks
+    get:
+      description: Получение конкретной задачи по её ID
+      parameters:
+      - description: ID получаемой задачи
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Успешное получение задачи
+          schema:
+            $ref: '#/definitions/internal_features_tasks_transport_http.GetTaskResponse'
+        "400":
+          description: Bad request
+          schema:
+            $ref: '#/definitions/github_com_BladeRunner322_Semi-prod-ToDoList_internal_core_transport_http_response.ErrorResponse'
+        "404":
+          description: Task not found
+          schema:
+            $ref: '#/definitions/github_com_BladeRunner322_Semi-prod-ToDoList_internal_core_transport_http_response.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/github_com_BladeRunner322_Semi-prod-ToDoList_internal_core_transport_http_response.ErrorResponse'
+      summary: Получение задачи
+      tags:
+      - tasks
+    patch:
+      consumes:
+      - application/json
+      description: |-
+        Изменение информации о уже существующей в системе задаче
+        ### Логика обновления полей (Three-state logic):
+        1. **Поле не передано**:       `description` игнорируется, значение в БД не меняется
+        2. **Явно передано значение**: `description": "слить 200 ммр"` - устанавливает новое описание в БД
+        3. **Передан null**:           `description": null` - очищает поле в БД (set to NULL)
+        Ограничения: `title` и `completed` не могут быть выставлены как null
+      parameters:
+      - description: ID изменяемой задачи
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: PatchTask тело запроса
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/internal_features_tasks_transport_http.PatchTaskRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Успешное изменение задачи
+        "400":
+          description: Bad request
+          schema:
+            $ref: '#/definitions/github_com_BladeRunner322_Semi-prod-ToDoList_internal_core_transport_http_response.ErrorResponse'
+        "404":
+          description: User not found
+          schema:
+            $ref: '#/definitions/github_com_BladeRunner322_Semi-prod-ToDoList_internal_core_transport_http_response.ErrorResponse'
+        "409":
+          description: Conflict
+          schema:
+            $ref: '#/definitions/github_com_BladeRunner322_Semi-prod-ToDoList_internal_core_transport_http_response.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/github_com_BladeRunner322_Semi-prod-ToDoList_internal_core_transport_http_response.ErrorResponse'
+      summary: Изменение задачи
+      tags:
+      - tasks
+  /users:
+    get:
+      description: Просмотр списка пользователей с опциональной пагинацией
+      parameters:
+      - description: Размер страницы с пользователями
+        in: query
+        name: limit
+        type: integer
+      - description: Смещение страницы с пользователями
+        in: query
+        name: offset
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Успешное получение списка пользователей
+          schema:
+            items:
+              $ref: '#/definitions/internal_features_users_transport_http.UserDTOResponse'
+            type: array
+        "400":
+          description: Bad request
+          schema:
+            $ref: '#/definitions/github_com_BladeRunner322_Semi-prod-ToDoList_internal_core_transport_http_response.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/github_com_BladeRunner322_Semi-prod-ToDoList_internal_core_transport_http_response.ErrorResponse'
+      summary: Список пользователей
+      tags:
+      - users
+    post:
+      consumes:
+      - application/json
+      description: Создание нового пользователя в системе
+      parameters:
+      - description: CreateUser тело запроса
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/internal_features_users_transport_http.CreateUserRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Успешное создание пользователя
+          schema:
+            $ref: '#/definitions/internal_features_users_transport_http.CreateUserResponse'
+        "400":
+          description: Bad request
+          schema:
+            $ref: '#/definitions/github_com_BladeRunner322_Semi-prod-ToDoList_internal_core_transport_http_response.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/github_com_BladeRunner322_Semi-prod-ToDoList_internal_core_transport_http_response.ErrorResponse'
+      summary: Создание пользователя
+      tags:
+      - users
+  /users/{id}:
+    delete:
+      description: Удаление существующего пользователя в системе по его ID
+      parameters:
+      - description: ID удаляемого пользователя
+        in: path
+        name: id
+        required: true
+        type: integer
+      responses:
+        "204":
+          description: Успешное удаление пользователя
+        "400":
+          description: Bad request
+          schema:
+            $ref: '#/definitions/github_com_BladeRunner322_Semi-prod-ToDoList_internal_core_transport_http_response.ErrorResponse'
+        "404":
+          description: User not found
+          schema:
+            $ref: '#/definitions/github_com_BladeRunner322_Semi-prod-ToDoList_internal_core_transport_http_response.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/github_com_BladeRunner322_Semi-prod-ToDoList_internal_core_transport_http_response.ErrorResponse'
+      summary: Удаление пользователя
+      tags:
+      - users
+    get:
+      description: Получение конкретного пользователя по его ID
+      parameters:
+      - description: ID получаемого пользователя
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Успешное получение пользователя
+          schema:
+            $ref: '#/definitions/internal_features_users_transport_http.GetUserResponse'
+        "400":
+          description: Bad request
+          schema:
+            $ref: '#/definitions/github_com_BladeRunner322_Semi-prod-ToDoList_internal_core_transport_http_response.ErrorResponse'
+        "404":
+          description: User not found
+          schema:
+            $ref: '#/definitions/github_com_BladeRunner322_Semi-prod-ToDoList_internal_core_transport_http_response.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/github_com_BladeRunner322_Semi-prod-ToDoList_internal_core_transport_http_response.ErrorResponse'
+      summary: Получение пользователя
+      tags:
+      - users
+    patch:
+      consumes:
+      - application/json
+      description: |-
+        Изменение информации о уже существующем в системе пользователе
+        ### Логика обновления полей (Three-state logic):
+        1. **Поле не передано**:       `phone_number` игнорируется, значение в БД не меняется
+        2. **Явно передано значение**: `phone_number": "+79666666666"` - устанавливает новый номер телефона в БД
+        3. **Передан null**:           `phone_number": null` - очищает поле в БД (set to NULL)
+        Ограничения: `full_name` не может быть выставлен как null
+      parameters:
+      - description: ID изменяемого пользователя
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: PatchUser тело запроса
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/internal_features_users_transport_http.PatchUserRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Успешное изменение пользователя
+        "400":
+          description: Bad request
+          schema:
+            $ref: '#/definitions/github_com_BladeRunner322_Semi-prod-ToDoList_internal_core_transport_http_response.ErrorResponse'
+        "404":
+          description: User not found
+          schema:
+            $ref: '#/definitions/github_com_BladeRunner322_Semi-prod-ToDoList_internal_core_transport_http_response.ErrorResponse'
+        "409":
+          description: Conflict
+          schema:
+            $ref: '#/definitions/github_com_BladeRunner322_Semi-prod-ToDoList_internal_core_transport_http_response.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/github_com_BladeRunner322_Semi-prod-ToDoList_internal_core_transport_http_response.ErrorResponse'
+      summary: Изменение пользователя
+      tags:
+      - users
+swagger: "2.0"
