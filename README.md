@@ -120,3 +120,7 @@ completed == false  →   completed_at IS NULL
 | ⏱ Среднее время выполнения | Среднее значение `completed_at - created_at` |
 
 ---
+# 🔗 Полезные ссылки
+
+- 📘 **Swagger документация**: [Swagger UI](http://84.38.183.56:5050/swagger/index.html)
+- 🌐 **Приложение (базовый URL)**: [TodoApp](http://84.38.183.56:5050/)
