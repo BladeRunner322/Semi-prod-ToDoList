@@ -3,11 +3,13 @@ package core_config
 import (
 	"fmt"
 	"os"
+	"path"
 	"time"
 )
 
 type Config struct {
-	TimeZone *time.Location
+	TimeZone  *time.Location
+	StaticDir string
 }
 
 func NewConfig() (*Config, error) {
@@ -21,8 +23,15 @@ func NewConfig() (*Config, error) {
 		return nil, fmt.Errorf("load time zone: %s: %w", tz, err)
 	}
 
+	projectRoot := os.Getenv("PROJECT_ROOT")
+	if projectRoot == "" {
+		projectRoot = "."
+	}
+	staticDir := path.Join(projectRoot, "public/static")
+
 	return &Config{
-		TimeZone: zone,
+		TimeZone:  zone,
+		StaticDir: staticDir,
 	}, nil
 }
 
