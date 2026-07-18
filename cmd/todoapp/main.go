@@ -8,7 +8,7 @@ import (
 	"syscall"
 	"time"
 
-	core_config "github.com/BladeRunner322/Semi-prod-ToDoList/internal/core/config.go"
+	core_config "github.com/BladeRunner322/Semi-prod-ToDoList/internal/core/config"
 	core_logger "github.com/BladeRunner322/Semi-prod-ToDoList/internal/core/logger"
 	core_pgx_pool "github.com/BladeRunner322/Semi-prod-ToDoList/internal/core/repository/postgres/pool/pgx"
 	core_http_middlware "github.com/BladeRunner322/Semi-prod-ToDoList/internal/core/transport/http/middleware"
