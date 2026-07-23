@@ -65,7 +65,7 @@ func (u *User) Validate() error {
 
 		if !re.MatchString(*u.PhoneNumber) {
 			return fmt.Errorf(
-				"invalid  'PhoneNumber' format:: %w",
+				"invalid  'PhoneNumber' format: %w",
 				core_errors.ErrInvalidArgument,
 			)
 		}
